@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
     <meta charset="UTF-8">
     <title>My Private Diary</title>
@@ -70,167 +69,162 @@
 
 <body>
 
-    <div class="card">
-        <h2>🧡 ไดอารี่ของฉัน</h2>
-        <p id="welcome"></p>
+<div class="card">
+    <h2>🧡 ไดอารี่ของฉัน</h2>
+    <p id="welcome"></p>
 
-        <div>
-            <strong>วันนี้อารมณ์เป็นยังไง?</strong><br>
-            <input type="radio" name="mood" value="😊"> 😊
-            <input type="radio" name="mood" value="😐"> 😐
-            <input type="radio" name="mood" value="😢"> 😢
-            <input type="radio" name="mood" value="😡"> 😡
-        </div>
-
-        <br>
-
-        <textarea id="diaryText" placeholder="วันนี้รู้สึกยังไงบ้าง..."></textarea>
-
-        <button onclick="saveDiary()">บันทึก</button>
-
-        <h3>📊 กราฟระดับความเครียดวันนี้</h3>
-        <canvas id="stressChart"></canvas>
-
-        <h3>📚 บันทึกย้อนหลัง</h3>
-        <div id="history"></div>
-
-        <button class="logout" onclick="logout()">ออกจากระบบ</button>
+    <div>
+        <strong>วันนี้อารมณ์เป็นยังไง?</strong><br>
+        <input type="radio" name="mood" value="😊"> 😊
+        <input type="radio" name="mood" value="😐"> 😐
+        <input type="radio" name="mood" value="😢"> 😢
+        <input type="radio" name="mood" value="😡"> 😡
     </div>
 
-    <script>
-        /* ====== Google Apps Script API ====== */
-        const API_URL =
-            "https://script.google.com/macros/s/AKfycby2w_EEmgs-vbNzvNo6uc2Ntkd8I-7LTmb_EmTy4Yho7lmWyDwn9fp8cAD31YiUQvSD/exec";
+    <br>
 
-        /* ====== Login Check ====== */
-        const user = localStorage.getItem("currentUser");
-        if (!user) window.location.href = "login.html";
+    <textarea id="diaryText" placeholder="วันนี้รู้สึกยังไงบ้าง..."></textarea>
 
-        document.getElementById("welcome").innerText =
-            `สวัสดี ${user} 💙 วันนี้เป็นยังไงบ้าง`;
+    <button onclick="saveDiary()">บันทึก</button>
 
-        let chart;
+    <h3>📊 กราฟระดับความเครียดวันนี้</h3>
+    <canvas id="stressChart"></canvas>
 
-        /* ====== Save Diary ====== */
-        function saveDiary() {
-            const text = document.getElementById("diaryText").value.trim();
-            const moodEl = document.querySelector('input[name="mood"]:checked');
+    <h3>📚 บันทึกย้อนหลัง</h3>
+    <div id="history"></div>
 
-            if (!text || !moodEl) {
-                alert("กรุณาเลือกอารมณ์และเขียนบันทึก");
-                return;
-            }
+    <button class="logout" onclick="logout()">ออกจากระบบ</button>
+</div>
 
-            const mood = moodEl.value;
+<script>
+    /* ===== Google Apps Script API ===== */
+    const API_URL =
+        "https://script.google.com/macros/s/AKfycby2w_EEmgs-vbNzvNo6uc2Ntkd8I-7LTmb_EmTy4Yho7lmWyDwn9fp8cAD31YiUQvSD/exec";
 
-            /* 🔹 1. บันทึกลง Google Sheet */
-            fetch(API_URL, {
-                method: "POST",
-                body: JSON.stringify({
-                    action: "saveDiary",
-                    username: user,
-                    mood: mood,
-                    text: text
-                })
-            }).catch(err => console.error(err));
+    const user = localStorage.getItem("currentUser");
+    if (!user) window.location.href = "login.html";
 
-            /* 🔹 2. บันทึกลง localStorage */
-            const key = `diaries_${user}`;
-            const diaries = JSON.parse(localStorage.getItem(key)) || [];
+    document.getElementById("welcome").innerText =
+        `สวัสดี ${user} 💙 วันนี้เป็นยังไงบ้าง`;
 
-            diaries.unshift({
-                time: new Date().toLocaleString(),
-                mood: mood,
-                text: text
-            });
+    let chart;
 
-            localStorage.setItem(key, JSON.stringify(diaries));
+    function saveDiary() {
+        const text = document.getElementById("diaryText").value.trim();
+        const moodEl = document.querySelector('input[name="mood"]:checked');
 
-            document.getElementById("diaryText").value = "";
-            moodEl.checked = false;
-
-            loadDiary();
-            updateChart();
+        if (!text || !moodEl) {
+            alert("กรุณาเลือกอารมณ์และเขียนบันทึก");
+            return;
         }
 
-        /* ====== Load Diary ====== */
-        function loadDiary() {
-            const key = `diaries_${user}`;
-            const diaries = JSON.parse(localStorage.getItem(key)) || [];
-            const history = document.getElementById("history");
+        const mood = moodEl.value;
 
-            history.innerHTML = "";
+        /* บันทึก Google Sheet */
+        fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "saveDiary",
+                username: user,
+                mood,
+                text
+            })
+        }).catch(console.error);
 
-            diaries.forEach(d => {
-                const div = document.createElement("div");
-                div.className = "diary-item";
-                div.innerHTML = `
-                    <strong>${d.time}</strong> ${d.mood}<br>
-                    ${d.text}
-                `;
-                history.appendChild(div);
-            });
-        }
+        /* บันทึก localStorage */
+        const key = `diaries_${user}`;
+        const diaries = JSON.parse(localStorage.getItem(key)) || [];
 
-        /* ====== Update Chart ====== */
-        function updateChart() {
-            const key = `diaries_${user}`;
-            const diaries = JSON.parse(localStorage.getItem(key)) || [];
-            const today = new Date().toLocaleDateString();
+        diaries.unshift({
+            time: new Date().toLocaleString(),
+            mood,
+            text
+        });
 
-            const moodMap = {
-                "😊": 1,
-                "😐": 2,
-                "😢": 4,
-                "😡": 5
-            };
+        localStorage.setItem(key, JSON.stringify(diaries));
 
-            const labels = [];
-            const data = [];
-
-            diaries.slice().reverse().forEach(d => {
-                if (d.time.includes(today)) {
-                    labels.push(d.time.split(" ")[1] || "");
-                    data.push(moodMap[d.mood]);
-                }
-            });
-
-            if (chart) chart.destroy();
-
-            chart = new Chart(document.getElementById("stressChart"), {
-                type: "line",
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: "ระดับความเครียด (1=ดี 5=เครียดมาก)",
-                        data: data,
-                        borderColor: "#ff8a65",
-                        backgroundColor: "rgba(255,138,101,0.2)",
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            min: 0,
-                            max: 5,
-                            ticks: { stepSize: 1 }
-                        }
-                    }
-                }
-            });
-        }
-
-        /* ====== Logout ====== */
-        function logout() {
-            localStorage.removeItem("currentUser");
-            window.location.href = "login.html";
-        }
+        document.getElementById("diaryText").value = "";
+        moodEl.checked = false;
 
         loadDiary();
         updateChart();
-    </script>
+    }
+
+    function loadDiary() {
+        const key = `diaries_${user}`;
+        const diaries = JSON.parse(localStorage.getItem(key)) || [];
+        const history = document.getElementById("history");
+
+        history.innerHTML = "";
+
+        diaries.forEach(d => {
+            const div = document.createElement("div");
+            div.className = "diary-item";
+            div.innerHTML = `
+                <strong>${d.time}</strong> ${d.mood}<br>
+                ${d.text}
+            `;
+            history.appendChild(div);
+        });
+    }
+
+    function updateChart() {
+        const key = `diaries_${user}`;
+        const diaries = JSON.parse(localStorage.getItem(key)) || [];
+        const today = new Date().toLocaleDateString();
+
+        const moodMap = {
+            "😊": 1,
+            "😐": 2,
+            "😢": 4,
+            "😡": 5
+        };
+
+        const labels = [];
+        const data = [];
+
+        diaries.slice().reverse().forEach(d => {
+            if (d.time.includes(today)) {
+                labels.push(d.time.split(" ")[1] || "");
+                data.push(moodMap[d.mood]);
+            }
+        });
+
+        if (chart) chart.destroy();
+
+        chart = new Chart(document.getElementById("stressChart"), {
+            type: "line",
+            data: {
+                labels,
+                datasets: [{
+                    label: "ระดับความเครียด (1=ดี 5=เครียดมาก)",
+                    data,
+                    borderColor: "#ff8a65",
+                    backgroundColor: "rgba(255,138,101,0.2)",
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 5,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+    }
+
+    function logout() {
+        localStorage.removeItem("currentUser");
+        window.location.href = "login.html";
+    }
+
+    loadDiary();
+    updateChart();
+</script>
 
 </body>
 </html>
