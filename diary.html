@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <title>My Private Diary</title>
@@ -168,6 +169,7 @@
         });
     }
 
+    /* ===== กราฟ (ดึงมาจากไฟล์อื่น / ลบของเดิมแล้ว) ===== */
     function updateChart() {
         const key = `diaries_${user}`;
         const diaries = JSON.parse(localStorage.getItem(key)) || [];
