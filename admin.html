@@ -124,6 +124,7 @@
             <tr>
                 <th>ชื่อ</th>
                 <th>เข้าใช้งานล่าสุด</th>
+                <th>เวลาบันทึกล่าสุด</th>
                 <th>ความเสี่ยง</th>
             </tr>
         </thead>
@@ -202,11 +203,21 @@ function getRisk(diaries) {
 Object.keys(users).forEach(username => {
     const diaries = JSON.parse(localStorage.getItem(`diaries_${username}`)) || [];
     const risk = getRisk(diaries);
+    let lastDiaryTime = "-";
+
+    if (diaries.length > 0) {
+        const fullDate = new Date(diaries[0].time);
+        lastDiaryTime = fullDate.toLocaleTimeString("th-TH", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    }
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
         <td>${username}</td>
         <td>${users[username].lastLogin || "-"}</td>
+        <td>${lastDiaryTime}</td>
         <td class="${risk.class}">${risk.text}</td>
     `;
     userTable.appendChild(tr);
@@ -259,3 +270,4 @@ showAllTime();
 
 </body>
 </html>
+
