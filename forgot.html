@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ลืมรหัสผ่าน</title>
+
+    <style>
+        * {
+    box-sizing: border-box;
+}
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #e0f7fa, #fde2e4);
+            font-family: Arial, sans-serif;
+        }
+
+        .card {
+            background: #fff;
+            padding: 30px;
+            width: 360px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #6a5acd;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+    .back-btn {
+    width: 100%;
+    margin: 8px 0 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px; /* เว้นระยะลูกศรกับข้อความ */
+}
+
+
+
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>🔐 ลืมรหัสผ่าน</h2>
+    <button class="back-btn" onclick="history.back()">
+    ← ย้อนกลับ
+</button>
+
+
+    <form onsubmit="resetPassword(event)">
+        <input 
+            type="text"
+            id="username"
+            placeholder="ชื่อผู้ใช้"
+            required
+        >
+
+        <input 
+            type="password"
+            id="newPassword"
+            placeholder="รหัสผ่านใหม่"
+            required
+        >
+
+        <button type="submit">ตั้งรหัสผ่านใหม่</button>
+    </form>
+
+    <p><a href="login.html">กลับไปหน้าเข้าสู่ระบบ</a></p>
+</div>
+
+<script>
+function resetPassword(event) {
+    event.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const newPassword = document.getElementById("newPassword").value;
+
+    let users = JSON.parse(localStorage.getItem("users")) || {};
+
+    if (!users[username]) {
+        alert("❌ ไม่พบชื่อผู้ใช้นี้");
+        return;
+    }
+
+    // 🔧 รองรับทั้งโครงสร้างเก่าและใหม่
+    if (typeof users[username] === "string") {
+        users[username] = {
+            password: newPassword
+        };
+    } else {
+        users[username].password = newPassword;
+    }
+
+    localStorage.setItem("users", JSON.stringify(users));
+
+    alert("✅ เปลี่ยนรหัสผ่านเรียบร้อย");
+    window.location.href = "login.html";
+}
+</script>
+
+
+</body>
+</html>

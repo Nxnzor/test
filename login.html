@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>เข้าสู่ระบบ | My Private Diary</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #e0f7fa, #fde2e4);
+        }
+
+        .login-card {
+            background: #fff;
+            width: 380px;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .login-card h2 {
+            margin-bottom: 20px;
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        .login-card button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: #ffa366;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .login-card button:hover {
+            background: #ff8c42;
+        }
+
+        .login-card p {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .login-card a {
+            color: #6a5acd;
+            text-decoration: none;
+        }
+
+        .safe-text {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #666;
+        }
+.back-home {
+    margin-top: 12px;
+    margin-bottom: 18px;
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid #ddd;
+    color: #555;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+
+    </style>
+</head>
+
+<body>
+
+    <div class="login-card">
+        <h2>🔒 เข้าสู่ระบบ</h2>
+
+        <button onclick="location.href='index.html'" class="back-home">
+            ← กลับหน้าแรก
+        </button>
+
+
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="ชื่อผู้ใช้" required>
+
+            <!-- ⭐ ช่องรหัสผ่าน (ที่หายไป) -->
+            <input type="password" id="password" placeholder="รหัสผ่าน" required>
+
+            <button type="submit">เข้าสู่ไดอารี่</button>
+
+        </form>
+
+        <p>ยังไม่มีบัญชี? <a href="register.html">สมัครสมาชิก</a></p>
+        <p>
+            <a href="forgot.html">ลืมรหัสผ่าน?</a>
+        </p>
+
+        <div class="safe-text">🌱 พื้นที่ปลอดภัยสำหรับความรู้สึกของคุณ</div>
+    </div>
+
+    <script>
+
+        
+        document.getElementById("loginForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value;
+
+            let users = JSON.parse(localStorage.getItem("users")) || {};
+
+            // ❌ ไม่มีชื่อผู้ใช้นี้
+            if (!users[username]) {
+                alert("❌ ไม่พบชื่อผู้ใช้นี้");
+                return;
+            }
+
+            // ❌ รหัสผ่านผิด
+            if (users[username].password !== password) {
+                alert("❌ รหัสผ่านไม่ถูกต้อง");
+                return;
+            }
+
+            // ✅ เข้าสู่ระบบสำเร็จ
+            users[username].lastLogin = new Date().toLocaleDateString("th-TH");
+            localStorage.setItem("users", JSON.stringify(users));
+
+            localStorage.setItem("currentUser", username);
+            window.location.href = "diary.html";
+        });
+    </script>
+
+    <script>
+const API_URL = "https://script.google.com/macros/s/AKfycby2w_EEmgs-vbNzvNo6uc2Ntkd8I-7LTmb_EmTy4Yho7lmWyDwn9fp8cAD31YiUQvSD/exec";
+
+function saveDiary() {
+  const mood = document.querySelector('input[name="mood"]:checked')?.value;
+  const text = document.getElementById("diaryText").value;
+  const username = localStorage.getItem("username");
+
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "saveDiary",
+      username: username,
+      mood: mood,
+      text: text
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert("บันทึกลง Google Sheet แล้ว 🎉");
+    console.log(data);
+  })
+  .catch(err => {
+    alert("เชื่อมไม่สำเร็จ ❌");
+    console.error(err);
+  });
+}
+</script>
+
+
+</body>
+
+</html>

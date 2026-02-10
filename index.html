@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>My Private Diary</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    }
+
+    /* ===== Navbar ===== */
+    .navbar {
+      height: 60px;
+      background: #4caf50;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .navbar .title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .admin-btn {
+      background: white;
+      color: #4caf50;
+      padding: 8px 18px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .admin-btn:hover {
+      background: #e8f5e9;
+    }
+
+    /* ===== Center Layout ===== */
+    .center-wrapper {
+      min-height: calc(100vh - 60px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* ===== Card ===== */
+    .card {
+      background: #ffffff;
+      width: 420px;
+      max-width: 100%;
+      padding: 40px;
+      border-radius: 24px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      animation: fadeUp 0.6s ease;
+    }
+
+    .card h1 {
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+
+    .card p {
+      color: #555;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .main-btn {
+      background: #66bb6a;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 999px;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .main-btn:hover {
+      background: #43a047;
+      transform: translateY(-2px);
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 480px) {
+      .card {
+        padding: 30px 24px;
+      }
+
+      .card h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="title">🔒 My Private Diary</div>
+    <a class="admin-btn" href="admin-login.html">Admin</a>
+  </header>
+
+  <!-- Main -->
+  <main class="center-wrapper">
+    <div class="card">
+      <h1>บันทึกใจของคุณ</h1>
+      <p>
+        พื้นที่ปลอดภัยสำหรับบันทึกความรู้สึกในแต่ละวัน  
+        ไม่มีใครเห็น นอกจากคุณ
+      </p>
+      <button class="main-btn" onclick="location.href='login.html'">
+        เข้าสู่ระบบผู้ใช้
+      </button>
+    </div>
+  </main>
+
+  <script>
+  // ===== Visitor Counter =====
+  let visitCount = localStorage.getItem("visitCount");
+
+  if (!visitCount) {
+    visitCount = 1;
+  } else {
+    visitCount = parseInt(visitCount) + 1;
+  }
+
+  localStorage.setItem("visitCount", visitCount);
+</script>
+
+
+</body>
+</html>

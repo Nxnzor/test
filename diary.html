@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>My Private Diary</title>
+
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(#e3f2fd, #fce4ec);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .card {
+            background: #fff;
+            width: 420px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            resize: none;
+            margin-bottom: 12px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            background: #ffa366;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .logout {
+            background: #ffd6c9;
+            color: #333;
+        }
+
+        .diary-item {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h2>🧡 ไดอารี่ของฉัน</h2>
+        <p id="welcome"></p>
+
+        <div>
+            <strong>วันนี้อารมณ์เป็นยังไง?</strong><br>
+            <input type="radio" name="mood" value="😊"> 😊
+            <input type="radio" name="mood" value="😐"> 😐
+            <input type="radio" name="mood" value="😢"> 😢
+            <input type="radio" name="mood" value="😡"> 😡
+        </div>
+
+        <br>
+
+        <textarea id="diaryText" placeholder="วันนี้รู้สึกยังไงบ้าง..."></textarea>
+
+        <button onclick="saveDiary()">บันทึก</button>
+
+        <h3>📚 บันทึกย้อนหลัง</h3>
+        <div id="history"></div>
+
+        <button class="logout" onclick="logout()">ออกจากระบบ</button>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycby2w_EEmgs-vbNzvNo6uc2Ntkd8I-7LTmb_EmTy4Yho7lmWyDwn9fp8cAD31YiUQvSD/exec";
+
+        const user = localStorage.getItem("currentUser");
+        if (!user) window.location.href = "login.html";
+
+        document.getElementById("welcome").innerText =
+            `สวัสดี ${user} 💙 วันนี้เป็นยังไงบ้าง`;
+
+        function saveDiary() {
+            const text = document.getElementById("diaryText").value.trim();
+            const moodEl = document.querySelector('input[name="mood"]:checked');
+
+            if (!text || !moodEl) {
+                alert("กรุณาเลือกอารมณ์และเขียนบันทึก");
+                return;
+            }
+
+            const mood = moodEl.value;
+
+            /* 🔹 1. บันทึกลง Google Sheet */
+            fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "saveDiary",
+                    username: user,
+                    mood: mood,
+                    text: text
+                })
+            })
+                .then(res => res.json())
+                .then(() => {
+                    console.log("Saved to Google Sheet");
+                })
+                .catch(err => {
+                    console.error("Google Sheet error", err);
+                });
+
+            /* 🔹 2. บันทึกลง localStorage (ใช้โชว์ย้อนหลัง) */
+            const key = `diaries_${user}`;
+            const diaries = JSON.parse(localStorage.getItem(key)) || [];
+
+            diaries.unshift({
+                time: new Date().toLocaleString(),
+                mood: mood,
+                text: text
+            });
+
+            localStorage.setItem(key, JSON.stringify(diaries));
+
+            document.getElementById("diaryText").value = "";
+            moodEl.checked = false;
+
+            loadDiary();
+        }
+
+        function loadDiary() {
+            const key = `diaries_${user}`;
+            const diaries = JSON.parse(localStorage.getItem(key)) || [];
+            const history = document.getElementById("history");
+
+            history.innerHTML = "";
+
+            diaries.forEach(d => {
+                const div = document.createElement("div");
+                div.className = "diary-item";
+                div.innerHTML = `
+      <strong>${d.time}</strong> ${d.mood}<br>
+      ${d.text}
+    `;
+                history.appendChild(div);
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem("currentUser");
+            window.location.href = "login.html";
+        }
+
+        loadDiary();
+    </script>
+
+
+
+</body>
+
+</html>
